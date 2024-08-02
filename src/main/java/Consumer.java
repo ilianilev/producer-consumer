@@ -48,11 +48,11 @@ class Consumer extends Thread {
             Thread.sleep(Main.consumerWaitTimeMs);
         }
 
-        // Get a message from the queue
+        //Get a message from the queue
         Message taken = messageQueue.take();
         Main.MESSAGE_COUNTER.incrementAndGet();
 
-        // Simulate processing time
+        //Simulate processing time
         Thread.sleep(taken.getProcessingTime());
 
 

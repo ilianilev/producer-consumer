@@ -9,7 +9,7 @@ public class Main {
     public static int STOP_AFTER_MESSAGES_CONSUMED = 100;
     public static AtomicInteger MESSAGE_COUNTER = new AtomicInteger(0);
     public static long consumerWaitTimeMs = 100;
-    public static long producerWaitTimeMs = 100;
+    public static long producerWaitTimeMs = 150;
     /**
      * Entry point of the program that demonstrates message processing using producers and consumers.
      */
