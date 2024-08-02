@@ -5,8 +5,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Represents a consumer thread that processes messages from a shared message queue.
  */
 class Consumer extends Thread {
-    private LinkedBlockingQueue<Message> messageQueue;
-    private String name;
+    private final LinkedBlockingQueue<Message> messageQueue;
+    private final String name;
 
     /**
      * Constructs a new consumer with the given name and message queue.
@@ -43,7 +43,7 @@ class Consumer extends Thread {
      */
     private void consume() throws InterruptedException {
         // Wait until there are messages in the queue
-        while (messageQueue.size() == 0) {
+        while (messageQueue.isEmpty()) {
             System.out.println("Consumer " + name + " is waiting for messages...");
             Thread.sleep(Main.consumerWaitTimeMs);
         }

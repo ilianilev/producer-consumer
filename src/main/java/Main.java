@@ -15,7 +15,7 @@ public class Main {
      */
 
     public static void main(String[] args) throws InterruptedException {
-        LinkedBlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>(QUEUE_SIZE);
+        final LinkedBlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>(QUEUE_SIZE);
         Producer producer = new Producer("P1", messageQueue, 100);
         Producer producer2 = new Producer("P2", messageQueue, 60);
 

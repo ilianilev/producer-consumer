@@ -45,7 +45,7 @@ class Producer extends Thread {
     private void produce() throws InterruptedException {
 
         Message msg = new Message(UUID.randomUUID().toString(), //UUID is used for generating and representing unique identifiers
-                "Data: " + LocalDateTime.now().toString());
+                "Data: " + LocalDateTime.now());
         msg.setProcessingTime(delayMs);
 
         // Wait until there is free space in the queue
