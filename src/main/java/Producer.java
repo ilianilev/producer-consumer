@@ -1,27 +1,35 @@
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Represents a producer thread that generates messages and adds them to a shared message queue.
+ */
 class Producer extends Thread {
-    private LinkedBlockingQueue<Message> messageQueue;
-    private long delayMs;
-    private String name;
+    private final LinkedBlockingQueue<Message> messageQueue;
+    private final long delayMs;
+    private final String name;
 
+    /**
+     * Constructs a new producer with the given name, message queue, and delay.
+     *
+     * @param name          The name of the producer.
+     * @param messageQueue  The shared message queue.
+     * @param delayMs       The processing delay for each produced message.
+     */
     public Producer(String name, LinkedBlockingQueue<Message> messageQueue, long delayMs) {
         this.name = name;
         this.messageQueue = messageQueue;
         this.delayMs = delayMs;
     }
 
+    /**
+     * Continuously produces messages and adds them to the queue until the termination condition is met.
+     */
     @Override
     public void run() {
-        while (true) {
+        while (Main.MESSAGE_COUNTER.get() < Main.STOP_AFTER_MESSAGES_CONSUMED) {
             try {
-                if (Main.MESSAGE_COUNTER.get() >= Main.STOP_AFTER_MESSAGES_CONSUMED) {
-                    break;
-                }
                 produce();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -30,18 +38,23 @@ class Producer extends Thread {
     }
 
     /**
+     * Generates a new message, sets its processing time, and adds it to the queue.
      *
-     * This met
+     * @throws InterruptedException If the thread is interrupted while waiting for the queue.
      */
-    private synchronized void produce() throws InterruptedException {
-        Message msg = new Message(UUID.randomUUID().toString(),
+    private void produce() throws InterruptedException {
+
+        Message msg = new Message(UUID.randomUUID().toString(), //UUID is used for generating and representing unique identifiers
                 "Data: " + LocalDateTime.now().toString());
         msg.setProcessingTime(delayMs);
+
+        // Wait until there is free space in the queue
         while (messageQueue.size() == Main.QUEUE_SIZE) {
             System.out.println("Queue is full. Producer " + name + " is waiting for queue...");
-            Thread.sleep(100);
-            //System.out.println("Producer " + name + " was notified by consumer.");
+            Thread.sleep(Main.producerWaitTimeMs);
         }
+
+
         messageQueue.put(msg);
         System.out.println("Producer " + name + " produced " + msg.getMessageId());
     }
