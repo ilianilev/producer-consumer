@@ -7,32 +7,34 @@ import java.util.concurrent.LinkedBlockingQueue;
 class Consumer extends Thread {
     private final LinkedBlockingQueue<Message> messageQueue;
     private final String name;
+    private boolean isSuccessful = false;
 
     /**
      * Constructs a new consumer with the given name and message queue.
      *
-     * @param name          The name of the consumer.
-     * @param messageQueue  The shared message queue.
+     * @param name         The name of the consumer.
+     * @param messageQueue The shared message queue.
      */
     public Consumer(String name, LinkedBlockingQueue<Message> messageQueue) {
         this.name = name;
         this.messageQueue = messageQueue;
     }
-
     /**
      * Continuously consumes messages from the queue until the termination condition is met.
      */
     @Override
     public void run() {
-        while (true) {
-            try {
+        try {
+            while (true) {
                 consume();
                 if (Main.MESSAGE_COUNTER.get() >= Main.STOP_AFTER_MESSAGES_CONSUMED) {
                     break;
                 }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
+            isSuccessful = true;
+        } catch (InterruptedException e) {
+            isSuccessful = false;
+            throw new RuntimeException(e);
         }
     }
 
@@ -55,10 +57,15 @@ class Consumer extends Thread {
         //Simulate processing time
         Thread.sleep(taken.getProcessingTime());
 
-
         System.out.println("Consumer " + name + " consumed message " +
                 taken.getMessageId() + " with data: " + taken.getData() +
                 ". Operation took " + taken.getProcessingTime() + " milliseconds.");
+    }
+    /**
+     * @return true if the consumers successful ended
+     */
+    public boolean isSuccessful() {
+        return isSuccessful;
     }
 }
 

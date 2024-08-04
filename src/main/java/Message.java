@@ -1,3 +1,6 @@
+/**
+ * Меssage class represents only a message with an associated ID, data, and processing time.
+ */
 public class Message {
     private String messageId;
     private String data;

@@ -9,13 +9,14 @@ class Producer extends Thread {
     private final LinkedBlockingQueue<Message> messageQueue;
     private final long delayMs;
     private final String name;
+    private boolean isSuccessful = false;
 
     /**
      * Constructs a new producer with the given name, message queue, and delay.
      *
-     * @param name          The name of the producer.
-     * @param messageQueue  The shared message queue.
-     * @param delayMs       The processing delay for each produced message.
+     * @param name         The name of the producer.
+     * @param messageQueue The shared message queue.
+     * @param delayMs      The processing delay for each produced message.
      */
     public Producer(String name, LinkedBlockingQueue<Message> messageQueue, long delayMs) {
         this.name = name;
@@ -28,12 +29,18 @@ class Producer extends Thread {
      */
     @Override
     public void run() {
-        while (Main.MESSAGE_COUNTER.get() < Main.STOP_AFTER_MESSAGES_CONSUMED) {
-            try {
+        try {
+            while (Main.MESSAGE_COUNTER.get() < Main.STOP_AFTER_MESSAGES_CONSUMED) {
                 produce();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
+            isSuccessful = true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Producer " + name + " was interrupted.");
+            isSuccessful = false;
+        } catch (Exception e) {
+            System.err.println("Producer " + name + " encountered an exception: " + e.getMessage());
+            isSuccessful = false;
         }
     }
 
@@ -43,8 +50,7 @@ class Producer extends Thread {
      * @throws InterruptedException If the thread is interrupted while waiting for the queue.
      */
     private void produce() throws InterruptedException {
-
-        Message msg = new Message(UUID.randomUUID().toString(), // Using UUID for generating and representing unique identifiers
+        Message msg = new Message(UUID.randomUUID().toString(),
                 "Data: " + LocalDateTime.now());
         msg.setProcessingTime(delayMs);
 
@@ -54,8 +60,14 @@ class Producer extends Thread {
             Thread.sleep(Main.producerWaitTimeMs);
         }
 
-
         messageQueue.put(msg);
         System.out.println("Producer " + name + " produced " + msg.getMessageId());
+    }
+
+    /**
+     * @return true if the producers successful ended
+     */
+    public boolean isSuccessful() {
+        return isSuccessful;
     }
 }
